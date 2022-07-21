@@ -117,6 +117,15 @@ def assumptionZNew(value_area):
             return z_depth[i] * (1 + (value_area / area[i]))
 
 
+# trying to solve the depth with stereo estimation
+# target points and their horizontal angle of deviation
+# from that we use the calculation of
+# h = (baseline_distance)/(tan(a1)^-1 + tan(a2)^-1)
+
+def depthByStereo():
+    pass
+
+
 @torch.no_grad()
 def run(
         weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
@@ -274,7 +283,7 @@ def run(
                         time.append(timeCount)
 
                         if cv2.waitKey(1) & 0xFF == ord('q'):
-                            break   
+                            break
 
                         c = int(cls)  # integer class
                         label = None if hide_labels else (

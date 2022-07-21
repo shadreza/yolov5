@@ -40,8 +40,10 @@ while True:
         img_left, mask_left, minArea=50, sort=True, filter=0)  # USE MINAREA AS FILTER
     imgContour_right, contours_right = cvzone.findContours(img_right, mask_right, minArea=50, sort=True, filter=0)
     if contours_left and contours_right:
+        
         data_left = contours_left[0]['center'][0], contours_left[0]['center'][1]
         data_right = contours_right[0]['center'][0], contours_left[0]['center'][1]
+        
         # print(data_left, data_right)
         X = (contours_left[0]['center'][0] + contours_right[0]['center'][0]) // 2
         Y = (contours_left[0]['center'][1] + contours_right[0]['center'][1]) // 2

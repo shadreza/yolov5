@@ -382,9 +382,9 @@ if __name__ == "__main__":
 
     # print(centers)
 
-    f = open("centers.txt", 'w')
-    for i in range(len(x)):
-        f.writelines(str(x[i]) + ' ' + str(y[i]) + ' ' + str(z[i]) + '\n')
+    # f = open("centers.txt", 'w')
+    # for i in range(len(x)):
+    #     f.writelines(str(x[i]) + ' ' + str(y[i]) + ' ' + str(z[i]) + '\n')
 
     # os.system("python graphing2d.py")
 

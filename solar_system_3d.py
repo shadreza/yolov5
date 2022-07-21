@@ -9,6 +9,8 @@ from vectors import Vector
 x = [1, 20, 30, 40, 50, 137, 208]
 y = [1, 20, 30, 40, 50, 137, 208]
 z = [1, 20, 30, 40, 50, 137, 208]
+idx = 0
+
 
 class SolarSystem:
 
@@ -16,7 +18,15 @@ class SolarSystem:
     global y
     global z
 
-    def __init__(self, size, projection_2d=False):
+    def __init__(self, size, xx, yy, zz, projection_2d=False):
+        global x
+        global y
+        global z
+
+        x = xx
+        y = yy
+        z = zz
+
         self.size = size
         self.projection_2d = projection_2d
         self.bodies = []
@@ -25,35 +35,30 @@ class SolarSystem:
             1,
             1,
             subplot_kw={"projection": "3d"},
+            # figsize=(self.size, self.size),
+            # figsize=(self.size, self.size),
             figsize=(self.size / 50, self.size / 50),
         )
+        # self.ax.view_init(-90, 90)
         self.fig.tight_layout()
         if self.projection_2d:
-            self.ax.view_init(10, 0)
+            self.ax.view_init(90, -90)
         else:
-            self.ax.view_init(0, 0)
+            self.ax.view_init(90, -90)
 
     def add_body(self, body):
         self.bodies.append(body)
 
     def update_all(self):
         self.bodies.sort(key=lambda item: item.position[0])
-        i = 0
         for body in self.bodies:
-            body.move(i)
+            body.move()
             body.draw()
 
-            i = (i + 1) % len(x)
-
-        # self.bodies.sort(key=lambda item: item.position[0])
-        # for body in self.bodies:
-        #     body.move()
-        #     body.draw()
-
     def draw_all(self):
-        self.ax.set_xlim((-self.size / 2, self.size / 2))
-        self.ax.set_ylim((-self.size / 2, self.size / 2))
-        self.ax.set_zlim((-self.size / 2, self.size / 2))
+        self.ax.set_xlim((0, self.size))
+        self.ax.set_ylim((0, self.size))
+        self.ax.set_zlim((0, self.size))
         if self.projection_2d:
             self.ax.xaxis.set_ticklabels([])
             self.ax.yaxis.set_ticklabels([])
@@ -69,19 +74,17 @@ class SolarSystem:
             for second in bodies_copy[idx + 1:]:
                 first.accelerate_due_to_gravity(second)
 
+
 class SolarSystemBody:
-    min_display_size = 10
+    min_display_size = 5
     display_log_base = 1.3
-    global x
-    global y
-    global z
 
     def __init__(
-        self,
-        solar_system,
-        mass,
-        position=(0, 0, 0),
-        velocity=(0, 0, 0),
+            self,
+            solar_system,
+            mass,
+            position=(0, 0, 0),
+            velocity=(0, 0, 0),
     ):
 
         self.solar_system = solar_system
@@ -96,12 +99,17 @@ class SolarSystemBody:
 
         self.solar_system.add_body(self)
 
-    def move(self, idx):
+    def move(self):
+        global x
+        global y
+        global z
+        global idx
         self.position = (
             x[idx],
             y[idx],
             z[idx],
         )
+        idx = (idx + 1) % len(x)
 
     def draw(self):
         self.solar_system.ax.plot(
@@ -133,26 +141,28 @@ class SolarSystemBody:
             body.velocity += acceleration * reverse
             reverse = -1
 
+
 class Sun(SolarSystemBody):
     def __init__(
-        self,
-        solar_system,
-        mass=10_000,
-        position=(0, 0, 0),
-        velocity=(0, 0, 0),
+            self,
+            solar_system,
+            mass=10,
+            position=(0, 0, 0),
+            velocity=(0, 0, 0),
     ):
         super(Sun, self).__init__(solar_system, mass, position, velocity)
         self.colour = "yellow"
+
 
 class Planet(SolarSystemBody):
     colours = itertools.cycle([(1, 0, 0), (0, 1, 0), (0, 0, 1)])
 
     def __init__(
-        self,
-        solar_system,
-        mass=10,
-        position=(0, 0, 0),
-        velocity=(0, 0, 0),
+            self,
+            solar_system,
+            mass=10,
+            position=(0, 0, 0),
+            velocity=(0, 0, 0),
     ):
         super(Planet, self).__init__(solar_system, mass, position, velocity)
         self.colour = next(Planet.colours)

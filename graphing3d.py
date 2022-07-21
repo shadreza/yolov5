@@ -33,6 +33,7 @@ def make3d(filePath):
         z.append(float(cord[2]))
 
     numbers = len(x)
+
     np.random.seed(123)
     n = numbers
     # t = np.random.choice(np.linspace(-1000000, 10000000, 10000002), n)
@@ -43,6 +44,7 @@ def make3d(filePath):
 
     fig = plt.figure()
     ax = plt.axes(projection='3d')
+    ax.view_init(90, -90)
     # ax.scatter(x, y, z, label="raw data")
     # for i in range(1):
     #     ax.scatter(x[0], y[0], z[0])
@@ -52,7 +54,6 @@ def make3d(filePath):
         Px = Polynomial([x2, x1, x0])
         Py = Polynomial([y2, y1, y0])
         Pz = Polynomial([z2, z1, z0])
-
         return np.concatenate([Px(t), Py(t), Pz(t)])
 
     start_vals = [x[0], x[1], x[2],
@@ -62,8 +63,10 @@ def make3d(filePath):
     xyz = np.concatenate([x, y, z])
     popt, _ = curve_fit(func, t, xyz, p0=start_vals)
 
-    t_fit = np.linspace(min(t), max(t) + (abs(max(t) - min(t)) // 10))
+    t_fit = np.linspace(-5, 45)
     xyz_fit = func(t_fit, *popt).reshape(3, -1)
+    print(t_fit)
+    print(xyz_fit)
     ax.plot(xyz_fit[0, :], xyz_fit[1, :], xyz_fit[2, :], color="green", label="fitted data")
 
     metadata = dict(title="Movie")
@@ -74,4 +77,4 @@ def make3d(filePath):
     plt.show()
 
 
-make3d("E:/Python/yolov5/yolov5/runs/detect/exp302/right_centers.txt")
+make3d("E:/Python/yolov5/yolov5/runs/detect/exp319/right_centers.txt")

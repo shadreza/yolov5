@@ -20,6 +20,7 @@ customtkinter.set_default_color_theme("green")  # Themes: "blue" (standard), "gr
 fileName = "E:/Python/yolov5/yolov5/videos/b_slowmo_path1.avi"
 fileName2 = "E:/Python/yolov5/yolov5/videos/b_slowmo_path1.avi"
 fileName3 = "E:/Python/yolov5/yolov5/runs/detect/exp302/right_centers.txt"
+fileName4 = "E:/Python/yolov5/yolov5/runs/detect/exp302/right_centers.txt"
 
 
 class App(customtkinter.CTk):
@@ -48,6 +49,15 @@ class App(customtkinter.CTk):
     def browseFiles3(self):
         global fileName3
         fileName3 = filedialog.askopenfilename(initialdir="",
+                                               title="Select a File",
+                                               filetypes=(("Text files",
+                                                           "*.txt*"),
+                                                          ("all files",
+                                                           "*.*")))
+
+    def browseFiles4(self):
+        global fileName4
+        fileName4 = filedialog.askopenfilename(initialdir="",
                                                title="Select a File",
                                                filetypes=(("Text files",
                                                            "*.txt*"),
@@ -101,25 +111,30 @@ class App(customtkinter.CTk):
                                                 command=self.see_saved_works_btn_clicked)
         self.button_2.grid(row=3, column=0, pady=10, padx=20)
 
-        # self.button_33 = customtkinter.CTkButton(master=self.frame_left,
-        #                                          text="Run Live",
-        #                                          command=self.run_new_yolo_live)
-        # self.button_33.grid(row=4, column=0, pady=10, padx=20)
-
         self.button_3322 = customtkinter.CTkButton(master=self.frame_left,
-                                                   text="View 3d",
+                                                   text="View 3d Predictive Line",
                                                    command=self.view_3d)
         self.button_3322.grid(row=4, column=0, pady=10, padx=20)
+
+        self.button_33221 = customtkinter.CTkButton(master=self.frame_left,
+                                                    text="View 3d Model",
+                                                    command=self.view_3d_model)
+        self.button_33221.grid(row=5, column=0, pady=10, padx=20)
 
         self.button_99 = customtkinter.CTkButton(master=self.frame_left,
                                                  text="Run Live Stereo",
                                                  command=self.run_live_stereo)
-        self.button_99.grid(row=5, column=0, pady=10, padx=20)
+        self.button_99.grid(row=6, column=0, pady=10, padx=20)
+
+        self.button_33 = customtkinter.CTkButton(master=self.frame_left,
+                                                 text="Refresh",
+                                                 command=self.refresh)
+        self.button_33.grid(row=7, column=0, pady=10, padx=20)
 
         self.button_3 = customtkinter.CTkButton(master=self.frame_left,
                                                 text="Exit",
                                                 command=self.on_closing)
-        self.button_3.grid(row=6, column=0, pady=10, padx=20)
+        self.button_3.grid(row=8, column=0, pady=10, padx=20)
 
         self.label_mode = customtkinter.CTkLabel(master=self.frame_left, text="Appearance Mode:")
         self.label_mode.grid(row=9, column=0, pady=0, padx=20, sticky="w")
@@ -127,7 +142,7 @@ class App(customtkinter.CTk):
         self.optionmenu_1 = customtkinter.CTkOptionMenu(master=self.frame_left,
                                                         values=["Light", "Dark", "System"],
                                                         command=self.change_appearance_mode)
-        self.optionmenu_1.grid(row=10, column=0, pady=10, padx=20, sticky="w")
+        self.optionmenu_1.grid(row=11, column=0, pady=10, padx=20, sticky="w")
 
         self.optionmenu_1.set("White")
 
@@ -136,6 +151,71 @@ class App(customtkinter.CTk):
 
     def change_appearance_mode(self, new_appearance_mode):
         customtkinter.set_appearance_mode(new_appearance_mode)
+
+    def refresh(self):
+        self.destroyStuff()
+
+    def view_3d_model(self):
+        self.destroyStuff()
+        global fileName4
+        fileName4 = fileName4.replace("/", "\\\\")
+        self.button_select_video2221 = customtkinter.CTkButton(master=self.frame_right,
+                                                               text="Select Points",
+                                                               command=self.browseFiles4)
+        self.button_select_video2221.grid(row=3, column=0, pady=10, padx=20)
+
+        # self.label_selected_video2221 = customtkinter.CTkLabel(master=self.frame_right,
+        #                                                        text=fileName4,
+        #                                                        text_font=("Roboto Medium", -12))  # font name and size in px
+        # self.label_selected_video2221.grid(row=4, column=0, pady=10, padx=10)
+
+        self.button_4221 = customtkinter.CTkButton(master=self.frame_right,
+                                                   text="Run Model",
+                                                   command=self.run_model)
+        self.button_4221.grid(row=5, column=0, pady=10, padx=20)
+
+    def run_model(self):
+        global fileName4
+        filePath = fileName4
+
+        x = []
+        y = []
+        z = []
+
+        file1 = open(filePath, 'r')
+        count = 0
+        max_val = float('-inf')
+        while True:
+            count += 1
+
+            # Get next line from file
+            line = file1.readline()
+            # print(line)
+            if not line:
+                break
+            cord = re.findall(r"[-+]?\d*\.\d+|\d+", line)
+
+            if float(cord[0]) > max_val:
+                max_val = float(cord[0])
+            if float(cord[1]) > max_val:
+                max_val = float(cord[1])
+            if float(cord[2]) > max_val:
+                max_val = float(cord[2])
+
+            x.append(float(cord[0]))
+            y.append(float(cord[1]))
+            z.append(float(cord[2]))
+
+        numbers = len(x)
+        from solar_system_3d import SolarSystem, Sun
+        solar_system = SolarSystem(max_val + 100, x, y, z, projection_2d=True)
+
+        sun = Sun(solar_system)
+
+        for i in range(numbers * 3):
+            solar_system.calculate_all_body_interactions()
+            solar_system.update_all()
+            solar_system.draw_all()
 
     def view_3d(self):
         self.destroyStuff()
@@ -146,10 +226,11 @@ class App(customtkinter.CTk):
                                                               command=self.browseFiles3)
         self.button_select_video222.grid(row=3, column=0, pady=10, padx=20)
 
-        self.label_selected_video222 = customtkinter.CTkLabel(master=self.frame_right,
-                                                              text=fileName3,
-                                                              text_font=("Roboto Medium", -12))  # font name and size in px
-        self.label_selected_video222.grid(row=4, column=0, pady=10, padx=10)
+        # self.label_selected_video222 = customtkinter.CTkLabel(master=self.frame_right,
+        #                                                       text=fileName3,
+        #                                                       text_font=("Roboto Medium", -12))  # font name and size in px
+        # self.label_selected_video222.grid(row=4, column=0, pady=10, padx=10)
+        
 
         self.button_422 = customtkinter.CTkButton(master=self.frame_right,
                                                   text="Plot in 3d",
@@ -161,10 +242,10 @@ class App(customtkinter.CTk):
 
     def playVideo(self):
         global fileName2
-        self.label_new_video1111 = customtkinter.CTkLabel(master=self.frame_right,
-                                                          text="",
-                                                          text_font=("Roboto Medium", -14))  # font name and size in px
-        self.label_new_video1111.grid(row=1, column=0, pady=10, padx=10)
+        # self.label_new_video1111 = customtkinter.CTkLabel(master=self.frame_right,
+        #                                                   text="",
+        #                                                   text_font=("Roboto Medium", -14))  # font name and size in px
+        # self.label_new_video1111.grid(row=1, column=0, pady=10, padx=10)
         player = tkvideo(fileName2, self.label_new_video1111, loop=0, size=(400, 400))
         player.play()
 
@@ -176,10 +257,10 @@ class App(customtkinter.CTk):
                                                              command=self.browseFiles2)
         self.button_select_video22.grid(row=3, column=0, pady=10, padx=20)
 
-        self.label_selected_video2 = customtkinter.CTkLabel(master=self.frame_right,
-                                                            text=fileName2,
-                                                            text_font=("Roboto Medium", -12))  # font name and size in px
-        self.label_selected_video2.grid(row=4, column=0, pady=10, padx=10)
+        # self.label_selected_video2 = customtkinter.CTkLabel(master=self.frame_right,
+        #                                                     text=fileName2,
+        #                                                     text_font=("Roboto Medium", -12))  # font name and size in px
+        # self.label_selected_video2.grid(row=4, column=0, pady=10, padx=10)
 
         self.button_42 = customtkinter.CTkButton(master=self.frame_right,
                                                  text="Play",
@@ -198,10 +279,10 @@ class App(customtkinter.CTk):
                                                            command=self.browseFiles)
         self.button_select_video.grid(row=3, column=0, pady=10, padx=20)
 
-        self.label_selected_video = customtkinter.CTkLabel(master=self.frame_right,
-                                                           text=fileName,
-                                                           text_font=("Roboto Medium", -12))  # font name and size in px
-        self.label_selected_video.grid(row=4, column=0, pady=10, padx=10)
+        # self.label_selected_video = customtkinter.CTkLabel(master=self.frame_right,
+        #                                                    text=fileName,
+        #                                                    text_font=("Roboto Medium", -12))  # font name and size in px
+        # self.label_selected_video.grid(row=4, column=0, pady=10, padx=10)
 
         self.button_4 = customtkinter.CTkButton(master=self.frame_right,
                                                 text="Start",
@@ -285,9 +366,18 @@ class App(customtkinter.CTk):
             self.button_422.destroy()
         except:
             pass
-
-# import stuff2
-# import stuff1
+        try:
+            self.button_select_video2221
+        except:
+            pass
+        try:
+            self.label_selected_video2221
+        except:
+            pass
+        try:
+            self.button_4221
+        except:
+            pass
 
 
 def plotIn3d():
@@ -353,7 +443,7 @@ def plotIn3d():
     writer = PillowWriter(fps=15, metadata=metadata)
 
     ax.legend()
-    ax.view_init(-90, 90)
+    ax.view_init(90, -90)
     plt.show()
 
 
