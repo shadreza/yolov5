@@ -230,7 +230,6 @@ class App(customtkinter.CTk):
         #                                                       text=fileName3,
         #                                                       text_font=("Roboto Medium", -12))  # font name and size in px
         # self.label_selected_video222.grid(row=4, column=0, pady=10, padx=10)
-        
 
         self.button_422 = customtkinter.CTkButton(master=self.frame_right,
                                                   text="Plot in 3d",
@@ -246,7 +245,7 @@ class App(customtkinter.CTk):
         #                                                   text="",
         #                                                   text_font=("Roboto Medium", -14))  # font name and size in px
         # self.label_new_video1111.grid(row=1, column=0, pady=10, padx=10)
-        player = tkvideo(fileName2, self.label_new_video1111, loop=0, size=(400, 400))
+        # player = tkvideo(fileName2, self.label_new_video1111, loop=0, size=(400, 400))
         player.play()
 
     def a(self):
@@ -291,7 +290,7 @@ class App(customtkinter.CTk):
 
     def run_new_yolo_live(self):
         self.destroyStuff()
-        command_for_live = "python detect_triangulation.py --source 0 --weights yolov5x.pt --classes 32"
+        command_for_live = "python detect_triangulation.py --source 0 --weights yolov5x.pt --classes 32  --footballOrNot"
         ret = subprocess.run(command_for_live, capture_output=True, shell=True)
 
     def run_live_stereo(self):
@@ -303,7 +302,8 @@ class App(customtkinter.CTk):
         self.destroyStuff()
         global fileName
         fileName = fileName.replace("/", "\\\\")
-        command_for_filename = "python detect_triangulation.py --source " + fileName + " --weights yolov5x.pt --classes 32"
+        command_for_filename = "python detect_triangulation.py --source " + \
+            fileName + " --weights yolov5x.pt --classes 32 --footballOrNot"
         self.label_yolo_running = customtkinter.CTkLabel(master=self.frame_right,
                                                          text="YOLO is running",
                                                          text_font=("Roboto Medium", -14))  # font name and size in px

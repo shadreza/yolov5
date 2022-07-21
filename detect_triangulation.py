@@ -23,6 +23,7 @@ Usage - formats:
                                          yolov5s.tflite             # TensorFlow Lite
                                          yolov5s_edgetpu.tflite     # TensorFlow Edge TPU
 """
+from glob import glob
 import numpy as np
 import pandas as pd
 from tkinter import *
@@ -61,6 +62,7 @@ frame_height = 480
 frame_width = 480
 
 left_part = True
+football_yes = True
 saving_directory = ''
 final_video_dir = ''
 
@@ -71,6 +73,9 @@ tmp_area = 0
 area = [420, 550, 624, 700, 783, 896, 1044, 1292, 1628, 1968, 2491, 3410, 4672, 6468, 10476, 18460, 44421]
 z_depth = [180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 80, 70, 60, 50, 40, 30, 20]
 
+AREA_NEW = [1353, 1462, 1656, 1824, 1836, 2180, 2322, 2451, 2867, 3300, 3621,
+            4015, 4582, 5525, 6722, 8008, 10208, 13068, 16837, 22317, 32085, 48323]
+DEPTH_NEW = [250, 240, 230, 220, 210, 200, 190, 180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 80, 70, 60, 50, 40]
 
 x = []
 y = []
@@ -107,6 +112,20 @@ def assumptionZ(value_area):
 
 
 def assumptionZNew(value_area):
+
+    global football_yes
+    global area
+    global z_depth
+    global AREA_NEW
+    global DEPTH_NEW
+    
+    if football_yes:
+        area = AREA_NEW
+        z_depth = DEPTH_NEW
+
+    print(area)
+    print(z_depth)
+
     for i in range(len(area) - 1):
         if i == len(area) - 1:
             return z_depth[i] * (1 - (area[i] / value_area))
@@ -154,11 +173,15 @@ def run(
         hide_conf=False,  # hide confidences
         half=False,  # use FP16 half-precision inference
         dnn=False,  # use OpenCV DNN for ONNX inference
-        left=False
+        left=False,
+        footballOrNot=False
 ):
 
     global left_part
     left_part = left
+
+    global football_yes
+    football_yes = footballOrNot
 
     global frame_height
     global final_video_dir
@@ -228,11 +251,15 @@ def run(
         # Process predictions
         for i, det in enumerate(pred):  # per image
             seen += 1
+            print(seen)
+
             if webcam:  # batch_size >= 1
                 p, im0, frame = path[i], im0s[i].copy(), dataset.count
                 s += f'{i}: '
             else:
                 p, im0, frame = path, im0s.copy(), getattr(dataset, 'frame', 0)
+                # cv2.imshow(frame)
+                cv2.imshow("output", frame)
 
             p = Path(p)  # to Path
             save_path = str(save_dir / p.name)  # im.jpg
@@ -384,6 +411,8 @@ def parse_opt():
     parser.add_argument('--half', action='store_true', help='use FP16 half-precision inference')
     parser.add_argument('--dnn', action='store_true', help='use OpenCV DNN for ONNX inference')
     parser.add_argument('--left', default=False, action='store_true', help='use OpenCV DNN for ONNX inference')
+    parser.add_argument('--footballOrNot', default=False, action='store_true',
+                        help='use OpenCV DNN for ONNX inference')
     opt = parser.parse_args()
     opt.imgsz *= 2 if len(opt.imgsz) == 1 else 1  # expand
     # print_args(vars(opt))
